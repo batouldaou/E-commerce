@@ -1,0 +1,31 @@
+To get outlier:
+    from scipy import stats
+    z_score = np.abs(stats.zscore(data['colm_name']))
+    threshold = 3
+    outlier_indices = np.where(z_score > threshold)
+    index = data.iloc[outlier_indices[0]].index
+    data.drop(index).reset_index(drop=True)
+
+Notes on dataset:
+Index(['InvoiceNo', 'StockCode', 'Description', 'Quantity', 'InvoiceDate',
+       'UnitPrice', 'CustomerID', 'Country'])
+
+InvoiceNo,Invoice Date, not important
+Quantity and Unit Price can obtain total price
+
+data["Description"]:
+   has 1452 missing but can be traced back using the stockcode
+    most_frequent_description = data.groupby(by=["StockCode"])["Description"].agg(lambda x: x.mode().iloc[0] if not x.mode().empty else np.nan)
+    description_map = most_frequent_description.to_dict()
+    data["Description"] = data["Description"].fillna(data['StockCode'].map(description_map))
+    
+data["stockcode]:
+is stock code same as description? if yes the encoding is done
+Same code for same item but can be different color
+data["Description"][data["StockCode"] == "85123A"].value_counts()
+
+data["InvoiceNo"] -> "C" if cancelled which is encoded to 0 if starts with 'C' 
+
+
+Goal of the model -> unsupervised model, to learn the behaviour of the customers and perform
+customer segmentation
